@@ -440,8 +440,95 @@ func handler2() {
 Interface
 =========
 
-# TODO
+## Example1
+```go
+type IUser interface {
+    Print()
+    UpdateFirstName(name string)
+}
 
+type User struct {
+    FirstName string
+    LastName  string
+}
+
+func NewUser(firstName string, lastName string) IUser {
+    return &User{
+        FirstName: firstName,
+        LastName:  lastName,
+    }
+}
+
+func (u *User) Modify() {
+    u.FirstName = "General " + u.FirstName
+}
+
+func (u *User) Print() {
+    u.Modify()
+    fmt.Println(u.FirstName + " " + u.LastName)
+}
+
+func (u *User) UpdateFirstName(firstname string) {
+    u.FirstName = firstname
+}
+
+func main() {
+    usr := NewUser("john", "doe")
+    usr.Print()
+}
+```
+
+Interface
+=========
+
+## Wrapping `error` interface
+
+```go
+package main
+
+import (
+    "fmt"
+    "runtime"
+)
+
+type CustomError struct {
+    Caller  string
+    Message string
+}
+
+func (e CustomError) Error() string {
+    return fmt.Sprintf("%s", e.Message)
+}
+
+func NewError(msg string) CustomError {
+    pc, _, line, _ := runtime.Caller(1)
+    details := runtime.FuncForPC(pc)
+    return CustomError{
+        Message: msg,
+        Caller:  fmt.Sprintf("%s#%d", details.Name(), line),
+   }
+}
+
+func main() {
+    if err := foo(7); err != nil {
+        cerr, ok := err.(CustomError)
+        if !ok {
+            fmt.Println("ERROR: ", err)
+            return
+        }
+        fmt.Println("ERROR:", err.Error(), "from: ", cerr.Caller)
+        return
+    }
+    fmt.Println("no error")
+}
+
+func foo(x int64) error {
+    if x == 7 {
+        return NewError("got 7 thus is error")
+    }
+    return nil
+}
+```
 
 THE END
 =======
