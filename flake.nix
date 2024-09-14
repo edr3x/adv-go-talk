@@ -26,8 +26,6 @@
             exec:
               enable: true" >> ~/.config/presenterm/config.yaml
           fi
-          
-          exec fish
         '';
       };
     };
